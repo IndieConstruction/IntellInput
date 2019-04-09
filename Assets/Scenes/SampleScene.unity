@@ -382,6 +382,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccb2f965b4dbb084db6ec3a8b2ddfd2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultGamepadSettings:
+    rightStickDeadzone: 0.5
+    leftStickDeadzone: 0.5
 --- !u!1 &1048838439
 GameObject:
   m_ObjectHideFlags: 0

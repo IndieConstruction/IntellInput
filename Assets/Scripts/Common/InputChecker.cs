@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TellInput;
 using UnityEngine;
 using XInputDotNetPure;
+using System.Linq;
 
 /// <summary>
 /// Classe che fornisce le informazioni sullo stato dei gamepad collegati.
@@ -11,10 +12,12 @@ using XInputDotNetPure;
 public class InputChecker : MonoBehaviour {
 
     #region Delegates
-    public static Action<InputType> OnInputChanged;
+    public static Action<IntellGamePad> OnGamepadConnected;
+    public static Action<IntellGamePad> OnGamepadDisconnected;
     #endregion
 
     #region properties
+    public IntellGamePad.Settings defaultGamepadSettings;
     /// <summary>
     /// Lista dei gamepad attivi.
     /// </summary>
@@ -23,28 +26,19 @@ public class InputChecker : MonoBehaviour {
 
     public static InputChecker instance;
 
-    private bool playerIndexSet = false;
-    private PlayerIndex joystickPlayerIndex;
-    private InputType currentinputType;
-
-
     private void Awake() {
         if (instance == null) {
             instance = this;
-            // Itera per tutta le vita della classe il controllo dello stato dei gamepad tramite xinput 
-            StartCoroutine(CheckInputRoutine());
+            Activegamepads = new List<IntellGamePad>();
         }
     }
 
     /// <summary>
-    /// Coroutine che in loop controlla il tipo di input in uso
+    /// Itera per tutta le vita della classe il controllo dello stato dei gamepad tramite xinput 
     /// </summary>
     /// <returns></returns>
-    private IEnumerator CheckInputRoutine() {
-        while (true) {
-            DoCheckInput();
-            yield return new WaitForSecondsRealtime(0.5f);
-        }
+    private void Update() {
+        DoCheckInput();
     }
 
     /// <summary>
@@ -52,55 +46,30 @@ public class InputChecker : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     private void DoCheckInput() {
-
-        playerIndexSet = false;
-        Activegamepads = new List<IntellGamePad>();
         for (int i = 0; i < 4; ++i) {
             PlayerIndex testPlayerIndex = (PlayerIndex)i;
             GamePadState testState = GamePad.GetState(testPlayerIndex);
             if (testState.IsConnected) {
-                Debug.Log(string.Format("GamePad found {0}", testPlayerIndex));
-                joystickPlayerIndex = testPlayerIndex;
-                playerIndexSet = true;
-                Activegamepads.Add(new IntellGamePad(testState, i));
+                IntellGamePad newPad = Activegamepads.FirstOrDefault(gpad => gpad.ID == i);
+                if (newPad != null) {
+                    newPad.CurrentGamePadState = testState;
+                } else {
+                    IntellGamePad padToAdd = new IntellGamePad(testState, i);
+                    Activegamepads.Add(padToAdd);
+                    padToAdd.SetSettings(defaultGamepadSettings);
+                    OnGamepadConnected?.Invoke(padToAdd);
+                }
+            } else {
+                IntellGamePad padToRemove = Activegamepads.FirstOrDefault(gpad => gpad.ID == i);
+                if (padToRemove != null) {
+                    Activegamepads.RemoveAt(i);
+                    OnGamepadDisconnected?.Invoke(padToRemove);
+                }
             }
-        }
-
-        if (currentinputType == InputType.None || (playerIndexSet && currentinputType == InputType.Keyboard)) {
-            currentinputType = InputType.Joystick;
-            if (OnInputChanged != null)
-                OnInputChanged(currentinputType);
-        } else if (currentinputType == InputType.None || (!playerIndexSet && currentinputType == InputType.Joystick)) {
-            currentinputType = InputType.Keyboard;
-            if (OnInputChanged != null)
-                OnInputChanged(currentinputType);
         }
     }
 
     #region Getter
-    /// <summary>
-    /// Funzione che ritorna il tipo di input attuale
-    /// </summary>
-    /// <returns></returns>
-    public static InputType GetCurrentInputType() {
-        return instance.currentinputType;
-    }
 
-    /// <summary>
-    /// Funzione che ritorna lo stato del joystcik collegato
-    /// </summary>
-    /// <returns></returns>
-    public static GamePadState GetCurrentGamePadState() {
-        return GamePad.GetState(instance.joystickPlayerIndex);
-    }
-
-    /// <summary>
-    /// Funzione che ritorna il player index del joystick attivo
-    /// </summary>
-    /// <returns></returns>
-    public static PlayerIndex GetJoystickPlayerIndex() {
-        return instance.joystickPlayerIndex;
-    }
     #endregion
-
 }
