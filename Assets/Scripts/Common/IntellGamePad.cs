@@ -94,6 +94,14 @@ public class IntellGamePad {
         } else if (OldGamePadState.Buttons.X == ButtonState.Pressed && CurrentGamePadState.Buttons.X == ButtonState.Released) {
             OnButtonReleased?.Invoke(this, Buttons.X);
         }
+        //A Button
+        if (OldGamePadState.Buttons.A == ButtonState.Released && CurrentGamePadState.Buttons.A == ButtonState.Pressed) {
+            OnButtonPressed?.Invoke(this, Buttons.A);
+        } else if (OldGamePadState.Buttons.A == ButtonState.Pressed && CurrentGamePadState.Buttons.A == ButtonState.Pressed) {
+            OnButtonHold?.Invoke(this, Buttons.A);
+        } else if (OldGamePadState.Buttons.A == ButtonState.Pressed && CurrentGamePadState.Buttons.A == ButtonState.Released) {
+            OnButtonReleased?.Invoke(this, Buttons.A);
+        }
 
         //Left Axis
         float lsX = CurrentGamePadState.ThumbSticks.Left.X;
