@@ -102,13 +102,45 @@ public class IntellGamePad {
         } else if (OldGamePadState.Buttons.A == ButtonState.Pressed && CurrentGamePadState.Buttons.A == ButtonState.Released) {
             OnButtonReleased?.Invoke(this, Buttons.A);
         }
+        //B Button
+        if (OldGamePadState.Buttons.B == ButtonState.Released && CurrentGamePadState.Buttons.B == ButtonState.Pressed)
+        {
+            OnButtonPressed?.Invoke(this, Buttons.B);
+        }
+        else if (OldGamePadState.Buttons.B == ButtonState.Pressed && CurrentGamePadState.Buttons.B == ButtonState.Pressed)
+        {
+            OnButtonHold?.Invoke(this, Buttons.B);
+        }
+        else if (OldGamePadState.Buttons.B == ButtonState.Pressed && CurrentGamePadState.Buttons.B == ButtonState.Released)
+        {
+            OnButtonReleased?.Invoke(this, Buttons.B);
+        }
+        //Y Button
+        if (OldGamePadState.Buttons.Y == ButtonState.Released && CurrentGamePadState.Buttons.Y == ButtonState.Pressed)
+        {
+            OnButtonPressed?.Invoke(this, Buttons.Y);
+        }
+        else if (OldGamePadState.Buttons.Y == ButtonState.Pressed && CurrentGamePadState.Buttons.Y == ButtonState.Pressed)
+        {
+            OnButtonHold?.Invoke(this, Buttons.Y);
+        }
+        else if (OldGamePadState.Buttons.Y == ButtonState.Pressed && CurrentGamePadState.Buttons.Y == ButtonState.Released)
+        {
+            OnButtonReleased?.Invoke(this, Buttons.Y);
+        }
 
         //Left Axis
         float lsX = CurrentGamePadState.ThumbSticks.Left.X;
         float lsY = CurrentGamePadState.ThumbSticks.Left.Y;
         float oldlsX = OldGamePadState.ThumbSticks.Left.X;
         float oldlsY = OldGamePadState.ThumbSticks.Left.Y;
+        //right Axis
+        float rsX = CurrentGamePadState.ThumbSticks.Right.X;
+        float rsY = CurrentGamePadState.ThumbSticks.Right.Y;
+        float oldrsX = OldGamePadState.ThumbSticks.Right.X;
+        float oldrsY = OldGamePadState.ThumbSticks.Right.Y;
 
+        //Left axis
         if ((lsX > currentSettings.leftStickDeadzone || lsX < -currentSettings.leftStickDeadzone) ||
             (lsY > currentSettings.leftStickDeadzone || lsY < -currentSettings.leftStickDeadzone)) {
             OnAxisUsed?.Invoke(this, Buttons.LeftStick, new AxisValue(lsX, lsY));
@@ -117,6 +149,20 @@ public class IntellGamePad {
                    (oldlsX > currentSettings.leftStickDeadzone || oldlsX < -currentSettings.leftStickDeadzone) ||
                    (oldlsY > currentSettings.leftStickDeadzone || oldlsY < -currentSettings.leftStickDeadzone)) {
             OnAxisStopUsed?.Invoke(this, Buttons.LeftStick, new AxisValue(lsX, lsY));
+        }
+
+        //Rigth axis
+        if ((rsX > currentSettings.rightStickDeadzone || rsX < -currentSettings.rightStickDeadzone) ||
+           (rsY > currentSettings.rightStickDeadzone || rsY < -currentSettings.rightStickDeadzone))
+        {
+            OnAxisUsed?.Invoke(this, Buttons.RightStick, new AxisValue(rsX, rsY));
+        }
+        else if ((currentSettings.rightStickDeadzone > rsX && rsX < -currentSettings.rightStickDeadzone) &&
+                 (currentSettings.rightStickDeadzone > rsY && rsY < -currentSettings.rightStickDeadzone) &&
+                 (oldrsX > currentSettings.rightStickDeadzone || oldrsX < -currentSettings.rightStickDeadzone) ||
+                 (oldrsY > currentSettings.rightStickDeadzone || oldrsY < -currentSettings.rightStickDeadzone))
+        {
+            OnAxisStopUsed?.Invoke(this, Buttons.RightStick, new AxisValue(rsX, rsY));
         }
     }
 
